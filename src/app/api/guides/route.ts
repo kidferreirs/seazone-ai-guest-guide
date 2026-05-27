@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { openai } from "@/lib/ai"
 import { buildExperienceGuidePrompt } from "@/lib/prompts"
-import { Property } from "@/types/property"
+import type { Property } from "@/types/property"
+import { properties } from "@/data/properties"
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,26 +18,38 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const property = await prisma.property.findUnique({
-      where: { code },
-      include: { guide: true },
-    })
+    const property = await prisma.property
+      .findUnique({
+        where: { code },
+        include: { guide: true },
+      })
+      .catch(() => null)
 
-    if (!property) {
+    const fallbackProperty = properties.find((item) => item.code === code)
+
+    if (!property && !fallbackProperty) {
       return NextResponse.json(
         { error: "Property not found" },
         { status: 404 }
       )
     }
 
-    if (property.guide) {
+    if (property?.guide) {
       return NextResponse.json({
         source: "cache",
         guide: property.guide.content,
       })
     }
 
-    const propertyData = property.data as unknown as Property
+    const propertyData =
+      (property?.data as unknown as Property) || fallbackProperty
+
+    if (!propertyData) {
+      return NextResponse.json(
+        { error: "Property data not found" },
+        { status: 404 }
+      )
+    }
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -65,6 +78,13 @@ export async function POST(request: NextRequest) {
 
     const guideContent = JSON.parse(content)
 
+    if (!property) {
+      return NextResponse.json({
+        source: "ai-fallback",
+        guide: guideContent,
+      })
+    }
+
     const guide = await prisma.guide.create({
       data: {
         propertyId: property.id,
@@ -81,7 +101,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Não foi possível gerar o guia agora. Tente novamente em instantes.",
+        error:
+          "Não foi possível gerar o guia agora. Tente novamente em instantes.",
       },
       { status: 500 }
     )
