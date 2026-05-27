@@ -1,5 +1,9 @@
 # 🚀 Seazone AI Guest Guide
 
+## 🌐 Demo Online
+
+[https://SEU-LINK.netlify.app](https://6a163eecd02fd391ef341549--projectseazone.netlify.app/)
+
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ed3a8db6-7fd8-4960-a61f-a5599c29654e/deploy-status)](https://app.netlify.com/projects/projectseazone/deploys)
 
 Guia digital inteligente para hóspedes, criado como desafio técnico para a vaga de **Desenvolvedor Fullstack (AI Builder)** na Seazone.
