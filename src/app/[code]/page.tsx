@@ -1,6 +1,9 @@
 import Image from "next/image"
 import { notFound } from "next/navigation"
+
 import { prisma } from "@/lib/prisma"
+import { properties } from "@/data/properties"
+import type { Property } from "@/types/property"
 import { ExperienceGuide } from "@/components/guide/ExperienceGuide"
 import { AssistantChat } from "@/components/chat/AssistantChat"
 
@@ -13,17 +16,23 @@ interface Props {
 export default async function PropertyPage({ params }: Props) {
   const { code } = await params
 
+  const normalizedCode = code.toUpperCase()
+
   const property = await prisma.property.findUnique({
     where: {
-      code: code.toUpperCase(),
+      code: normalizedCode,
     },
-  })
+  }).catch(() => null)
 
-  if (!property) {
+  const fallbackProperty = properties.find(
+    (item) => item.code === normalizedCode
+  )
+
+  const data = (property?.data as unknown as Property) || fallbackProperty
+
+  if (!data) {
     notFound()
   }
-
-  const data = property.data as any
 
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
