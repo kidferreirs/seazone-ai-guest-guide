@@ -154,7 +154,7 @@ export function AssistantChat({ propertyCode }: Props) {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -171,7 +171,7 @@ export function AssistantChat({ propertyCode }: Props) {
             type="button"
             onClick={sendMessage}
             disabled={loading}
-            className="rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-cyan-300 disabled:opacity-50"
+            className="w-full rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-zinc-950 transition hover:bg-cyan-300 disabled:opacity-50 sm:w-auto"
           >
             {loading ? "..." : "Enviar"}
           </button>
